@@ -11,6 +11,7 @@ const Game = ({ data }) => {
   const [animate, setAnimate] = useState(false);
 
   const handleClick = (e) => {
+    if (!e.target.dataset.id) return;
     const id = +e.target.dataset.id;
     if (options.length < MAX_SELECTIONS) {
       if (options.includes(id)) {
@@ -46,7 +47,10 @@ const Game = ({ data }) => {
   }, [options, arr, data]);
 
   return (
-    <div className="flex gap-3 m-4 p-4 border flex-wrap justify-center items-center">
+    <div
+      onClick={handleClick}
+      className="flex gap-3 m-4 p-4 border flex-wrap justify-center items-center"
+    >
       {arr.length > 0 ? (
         arr.map((item, ind) => {
           const isSelected = options.includes(ind);
@@ -68,9 +72,8 @@ const Game = ({ data }) => {
                 ${isSelected ? "border-blue-700" : ""}
                 ${isCorrect ? "border-green-700" : ""}
                 ${isIncorrect ? "border-red-700" : ""}
-                ${isExiting ? "opacity-0 transition duration-[1200ms]" : ""}
+                ${isExiting ? "opacity-0 scale-0 transition duration-[1s]" : ""}
               `}
-              onClick={handleClick}
               data-id={ind}
             >
               {item}

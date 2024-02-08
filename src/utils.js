@@ -40,6 +40,10 @@ export function createRandomArray(data) {
   return arr;
 }
 
-export function isSelectionCorrect(s1, s2, data) {
+export function isSelectionCorrect(data, s1, s2) {
   return data[s1] === s2 || data[s2] === s1;
+}
+
+export function getValues(arr, ids) {
+  return ids.map((id) => arr[id]);
 }

@@ -1,85 +1,67 @@
-import { useState, useEffect, useCallback } from "react";
-import { isSelectionCorrect, createRandomArray } from "./utils";
+/* eslint-disable react/prop-types */
+import { useState, useEffect } from "react";
+import { isSelectionCorrect, createRandomArray, getValues } from "./utils";
+
+const MAX_SELECTIONS = 2;
 
 const Game = ({ data }) => {
   const [arr, setArr] = useState(() => createRandomArray(data));
-  const [option1, setOption1] = useState(null);
-  const [option2, setOption2] = useState(null);
-
-  // can be three values "" = means both options is not selected yet
-  // true value means both selected value is correct
-  // false value means selected boxes are not correct
-  const [selection, setSelection] = useState("");
+  const [options, setOptions] = useState([]);
 
   const handleClick = (id) => {
-    if (option1 === null) {
-      setOption1(id);
-    } else if (id === option1) {
-      setOption1(null);
-    } else if (option2 === null) {
-      setOption2(id);
+    if (options.length < MAX_SELECTIONS) {
+      if (options.includes(id)) {
+        setOptions((prev) => prev.filter((i) => i !== id));
+      } else {
+        setOptions([...options, id]);
+      }
     }
   };
 
-  const resetValues = useCallback(() => {
-    setOption1(null);
-    setOption2(null);
-    setSelection("");
-  }, []);
-
-  const decideBorder = useCallback(
-    (ind) => {
-      if (selection === "") {
-        if (option1 === ind || option2 === ind) {
-          return "border-blue-700";
-        }
-      } else if (selection === true) {
-        if (option1 === ind || option2 === ind) {
-          return "border-[#66cc99]";
-        }
-      } else if (selection === false) {
-        if (option1 === ind || option2 === ind) {
-          return "border-red-700";
-        }
-      }
-      return "";
-    },
-    [selection, option1, option2]
-  );
-
   useEffect(() => {
-    if (option1 === null || option2 === null) return;
-    const s1 = arr[option1];
-    const s2 = arr[option2];
+    if (options.length !== MAX_SELECTIONS) return;
+
+    const [s1, s2] = getValues(arr, options);
+
     let timer;
-    if (isSelectionCorrect(s1, s2, data)) {
-      setSelection(true);
+    if (isSelectionCorrect(data, s1, s2)) {
       timer = setTimeout(() => {
-        setArr((prev) => prev.filter((s, i) => i !== option1 && i !== option2));
-        resetValues();
+        setArr((prev) => prev.filter((s, i) => !options.includes(i)));
+        setOptions([]);
       }, 1000);
     } else {
-      setSelection(false);
       timer = setTimeout(() => {
-        resetValues();
+        setOptions([]);
       }, 1000);
     }
 
     return () => {
       clearTimeout(timer);
     };
-  }, [option1, option2, arr, isSelectionCorrect, resetValues]);
+  }, [options, arr, data]);
 
   return (
     <div className="flex gap-3 m-4 p-4 border flex-wrap justify-center items-center">
       {arr.length > 0 ? (
         arr.map((item, ind) => {
+          const isSelected = options.includes(ind);
+          const isCorrect =
+            options.length === MAX_SELECTIONS &&
+            isSelected &&
+            isSelectionCorrect(data, ...getValues(arr, options));
+          const isIncorrect =
+            options.length === MAX_SELECTIONS &&
+            isSelected &&
+            !isSelectionCorrect(data, ...getValues(arr, options));
+
           return (
             <div
               key={item}
-              className={`p-3 font-semibold flex justify-center items-center border-[2px] rounded-md cursor-pointer bg-slate-100 border-[#414141] ${decideBorder(
-                ind
-              )}`}
+              className={`p-3 font-semibold flex justify-center items-center border-[2px] rounded-md cursor-pointer bg-slate-100 border-[#414141] 
+                ${isSelected ? "border-blue-700" : ""}
+                ${isCorrect ? "border-green-700" : ""}
+                ${isIncorrect ? "border-red-700" : ""}
+              `}
               onClick={() => handleClick(ind)}
             >
               {item}

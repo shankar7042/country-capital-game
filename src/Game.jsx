@@ -8,7 +8,8 @@ const Game = ({ data }) => {
   const [arr, setArr] = useState(() => createRandomArray(data));
   const [options, setOptions] = useState([]);
 
-  const handleClick = (id) => {
+  const handleClick = (e) => {
+    const id = +e.target.dataset.id;
     if (options.length < MAX_SELECTIONS) {
       if (options.includes(id)) {
         setOptions((prev) => prev.filter((i) => i !== id));
@@ -57,12 +58,13 @@ const Game = ({ data }) => {
           return (
             <div
               key={item}
-              className={`p-3 font-semibold flex justify-center items-center border-[2px] rounded-md cursor-pointer bg-slate-100 border-[#414141] 
+              className={`p-3 font-semibold flex justify-center items-center border-[2px] rounded-md cursor-pointer bg-slate-100 border-[#414141]
                 ${isSelected ? "border-blue-700" : ""}
                 ${isCorrect ? "border-green-700" : ""}
                 ${isIncorrect ? "border-red-700" : ""}
               `}
-              onClick={() => handleClick(ind)}
+              onClick={handleClick}
+              data-id={ind}
             >
               {item}
             </div>

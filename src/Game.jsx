@@ -8,6 +8,8 @@ const Game = ({ data }) => {
   const [arr, setArr] = useState(() => createRandomArray(data));
   const [options, setOptions] = useState([]);
 
+  const [animate, setAnimate] = useState(false);
+
   const handleClick = (e) => {
     const id = +e.target.dataset.id;
     if (options.length < MAX_SELECTIONS) {
@@ -26,9 +28,11 @@ const Game = ({ data }) => {
 
     let timer;
     if (isSelectionCorrect(data, s1, s2)) {
+      setAnimate(true);
       timer = setTimeout(() => {
         setArr((prev) => prev.filter((s, i) => !options.includes(i)));
         setOptions([]);
+        setAnimate(false);
       }, 1000);
     } else {
       timer = setTimeout(() => {
@@ -54,6 +58,8 @@ const Game = ({ data }) => {
             options.length === MAX_SELECTIONS &&
             isSelected &&
             !isSelectionCorrect(data, ...getValues(arr, options));
+          const isExiting =
+            options.length === MAX_SELECTIONS && isSelected && animate;
 
           return (
             <div
@@ -62,6 +68,7 @@ const Game = ({ data }) => {
                 ${isSelected ? "border-blue-700" : ""}
                 ${isCorrect ? "border-green-700" : ""}
                 ${isIncorrect ? "border-red-700" : ""}
+                ${isExiting ? "opacity-0 transition duration-[1200ms]" : ""}
               `}
               onClick={handleClick}
               data-id={ind}
